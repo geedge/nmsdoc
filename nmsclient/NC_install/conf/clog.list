@@ -1,0 +1,29 @@
+# This file list all NTCS processes
+# nms
+#nmsweb=/home/nms/apache-tomcat-7.0.59/logs
+#nmsdc=/home/nms/datacontroller/dc_logs
+#nmsclient=/home/nms/nmsclient/nc_logs
+# NTCS web
+# ntcsweb=apache-tomcat
+# NTCS Web-Service MariaDB
+mariadb=/var/lib/mysql,db_error.log
+# NTCS mid-Service
+#galaxy=galaxyTomcat
+# Config Line
+#tensor=tensor
+# AV analysis
+#avanalyser=rssb_maskey
+#pic=imagePlatform
+#voip=voipPlatform
+#audio=audio_platform
+#video=video_platform
+#fragcheck=frag_index_cluster
+#blacklist=castle_black
+#C2 critial log
+pzffff=/home/pjr/20180828_1000_ccCli/bin/log_dir,cc_recv
+#this pzffffres must under pzffff
+pzffc2res=/home/pjr/20180828_1000_ccCli/bin,RESTART
+#C3 critial log
+pzffhj=/home/pjr/20180828_1000_cccServer,RESTART
+
+

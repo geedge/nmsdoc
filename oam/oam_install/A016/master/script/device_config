@@ -1,0 +1,231 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+# created by zhangbin
+from sys import argv
+import json
+import os
+from pprint import pprint
+import shutil
+
+def update_route(data):
+    list = []
+    route_path = '/etc/sysconfig/static-routes'
+    requestOldParam = 'any net ' + data['destination_ip_old'] + ' netmask ' + data['ip_mask_old'] + ' gw ' + data['gateway_old'] + ' ' + \
+                  data['interface']
+    result = os.system(
+        'route add -net ' + data['destination_ip'] + ' netmask ' + data['ip_mask'] + ' gw ' + data['gateway'] + ' ' +
+        data['interface'])
+    result2 = os.system(
+        'route del -net ' + data['destination_ip_old'] + ' netmask ' + data['ip_mask_old'] + ' gw ' + data['gateway_old'] + ' ' +
+        data['interface'])
+    # ��������쳣����ֹ����
+    if (result != 0):
+        print(result)
+        return
+    if (result2 != 0):
+        print(result)
+        return
+    # �޸������ļ����·����Ϣ
+    with open(route_path, 'r+') as f_route:
+        lines = f_route.readlines()
+        for line in reversed(lines):
+            if (requestOldParam in line):
+                list.append('any net ' + data['destination_ip'] + ' netmask ' + data['ip_mask'] + ' gw ' + data['gateway'] + ' ' + \
+                  data['interface'] + '\n')
+            else:
+                list.append(line)
+	f_route.seek(0)
+	f_route.truncate()
+        f_route.writelines(list)
+
+
+def new_route(data):
+    # �����·��
+    result = os.system(
+        'route add -net ' + data['destination_ip'] + ' netmask ' + data['ip_mask'] + ' gw ' + data['gateway'] +' '+data['interface'])
+    # ��������쳣����ֹ����
+    if (result != 0):
+        print(result)
+        return
+    route_path = '/etc/sysconfig/static-routes'
+    # ����·����Ϣ��ӵ��ļ���
+    result = os.path.exists(route_path)
+    if (result == False):
+        with open(route_path, 'w') as f:
+            f.close()
+    with open(route_path, 'r+') as f:
+        strData = 'any net ' + data['destination_ip'] + ' netmask ' + data['ip_mask'] + ' gw ' + data['gateway'] + ' ' + \
+                  data['interface']
+        f.seek(0, 2)
+        f.write('\n' + strData)
+
+
+def remove_route(data):
+    #ɾ��·����Ϣ
+    route_path = '/etc/sysconfig/static-routes'
+    list = []
+    requestParam='any net ' + data['destination_ip'] + ' netmask ' + data['ip_mask'] + ' gw ' + data['gateway'] + ' ' + data['interface']
+    result = os.system(
+        'route del -net ' + data['destination_ip'] + ' netmask ' + data['ip_mask'] + ' gw ' + data['gateway'] + ' ' +
+        data['interface'])
+    # ��������쳣����ֹ����
+    if (result != 0):
+        print(result)
+        return
+    with open(route_path, 'r+')as f_route:
+        lines = f_route.readlines()
+        for line in lines:
+            if (not requestParam in line):
+                list.append(line)
+            f_route.seek(0)
+	    f_route.truncate()
+	    f_route.writelines(list)
+
+
+# ����ת��
+def exchange_maskint(mask_int):
+    bin_arr = ['0' for i in range(32)]
+    for i in range(mask_int):
+        bin_arr[i] = '1'
+    tmpmask = [''.join(bin_arr[i * 8:i * 8 + 8]) for i in range(4)]
+    tmpmask = [str(int(tmpstr, 2)) for tmpstr in tmpmask]
+    return '.'.join(tmpmask)
+
+
+# ��ȡ����·�ɵ���Ϣ
+def query_route():
+    path = '/etc/sysconfig/static-routes'
+    list = []
+    if(os.path.exists(path)):
+        with open(path, 'a+') as f:
+            content=f.readlines()
+            for i in content:
+                if(not i.strip('\n')==''):
+                    data=i.split(' ')
+                    result = {}
+                    result['destination_ip'] = data[2]
+                    result['ip_mask'] = data[4]
+                    result['gateway'] = data[6]
+                    result['r_interface'] = data[7]
+                    if(result):
+                        list.append(result)
+    return list
+
+
+# ��ȡ����·�ɵ���Ϣ
+def query_single_route(data):  # ����洢��list
+    path = '/etc/sysconfig/network-scripts/route-'
+    list = []
+    with open(path + data, 'a+') as f:
+        content = f.readline()
+        a = content.split()
+        b = a[0].split('/')
+        result = {}
+        result['destination_ip'] = b[0]
+        result['ip_mask'] = exchange_maskint(int(b[1]))
+        result['gateway'] = a[2]
+        result['r_interface'] = a[4]
+        if(result):
+            list.append(result)
+    return list
+
+
+# ��ȡ�������õ���Ϣ
+def query_all_config():
+    path = '/etc/sysconfig/network-scripts/'
+    list = []
+    for file in os.listdir(path):
+        if ('ifcfg-e' in file  and not('.' in file)):
+            with open(path + file, 'a+') as f:
+                result = {}
+                content = f.readline()
+                while (content.strip()):
+                    if (not (content.strip().startswith('#'))):
+                        res = content.split('=')
+                        result[res[0]] = res[1].rstrip('\n').rstrip()
+                    content = f.readline()
+                if(result):
+                    if('IPADDR' in result.keys()):
+                        if(not result['IPADDR'].strip()==''):
+                            list.append(result)
+    return list
+'''
+def query_all_config():
+    networknames=get_networkName()
+    path = '/etc/sysconfig/network-scripts/ifcfg-'
+    list = []
+    for networkname in networknames:
+        with open(path + networkname, 'a+') as f:
+            result = {}
+            content = f.readline()
+            while (content):
+                res = content.split('=')
+                result[res[0]] = res[1].rstrip('\n').rstrip()
+                content = f.readline()
+            list.append(result)
+    return list
+'''
+#��ȡ������������
+def get_networkName():
+    result = os.popen("ifconfig | awk '/^[a-z]/{print $1}'").readlines()
+    list = []
+    for i in result:
+        if (i.strip("\n") == 'lo'):
+            break
+        list.append(i.strip("\n"))
+    return list
+
+# �޸�������Ϣ
+def modify_config(data):
+    path = '/etc/sysconfig/network-scripts/'
+    path2 = '/tmp/'
+    # list��ΪN������
+    list = data['request']
+    for i in range(len(list)):
+        dic = {}
+        if (not (':' in list[i]['DEVICE'])):
+            with open(path + 'ifcfg-' + list[i]['DEVICE'], 'r+') as f:
+                for line in f:
+                    (key, value) = line.strip().split('=')
+                    dic[key] = value
+            dic['HWADDR'] = list[i]['HWADDR']
+            dic['NETMASK'] = list[i]['NETMASK']
+            dic['GATEWAY'] = list[i]['GATEWAY']
+            dic['IPADDR'] = list[i]['IPADDR']
+            list2 = []
+            for key in dic:
+                list2.append(key + '=' + dic[key] + '\n')
+            with open(path2 + 'ifcfg-' + list[i]['DEVICE'], 'w+') as f2:
+                f2.writelines(list2)
+
+            if (os.path.exists(path + 'ifcfg-' + list[i]['DEVICE'])):
+                os.remove(path + 'ifcfg-' + list[i]['DEVICE'])
+            shutil.move(path2 + 'ifcfg-' + list[i]['DEVICE'], path)
+    # �޸�������Ϣ�� ��������
+    os.system('service network restart')
+
+
+if __name__ == '__main__':
+    path_manage = '/etc/sysconfig/network-scripts/ifcfg-unknown2'
+    data = json.loads(argv[1])[0]
+    if data['type'] == '1':
+        list=get_networkName()
+        if(list):
+            print(json.dumps(list))
+    elif data['type'] == '2':
+        update_route(data)
+    elif data['type'] == '3':
+        remove_route(data)
+    elif data['type'] == '4':
+        new_route(data)
+    elif data['type'] == '5':
+        list = query_route()
+	if(list):
+            print(json.dumps(list))
+    elif data['type'] == '6':
+        modify_config(data)
+    elif data['type'] == '7':
+        list = query_all_config()
+        if(list):
+            print(json.dumps(list))
+    exit(0)

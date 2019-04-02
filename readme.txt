@@ -1,0 +1,6 @@
+为节省上传时间，故将各个安装包中的jre文件删除，统一存放在jre目录中。安装前需将jre中的文件拷贝到对应安装包下jre_install目录
+
+datacontroller\DC_install\jre_install
+nmsclient\NC_install\jre_install
+nmsclient\NC_Batch\NC_install
+nmsweb\nmsweb\jre_install

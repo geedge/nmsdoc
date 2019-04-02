@@ -1,0 +1,114 @@
+# This file list all NTCS processes
+# process stat check
+processcheck=pidcheck
+
+#NTC Interface
+ntcsweb=apache-tomcat
+mariadb=mysqld
+
+#NTC Mid
+galaxyService=galaxy-service
+galaxyFsync=galaxy-fsync-service
+galaxyTraffic=galaxy-traffic-service
+galaxyPush=galaxy-push-service
+galaxyStat=galaxy-stat-service
+galaxyTest=galaxyTomcat
+#logComplete=log-stream-completion
+#logStat=log-stream-stat
+#logTopIP=log-stream-top-ip
+#logTopN=log-stream-top
+#logUV=log-stream-uv
+
+
+#NTC config distribute
+Tensor=Tensor
+Redis=Redis
+panguValve=pangu_valve
+
+#NTC dynamic config
+Redis=Redis
+
+#NTC ASEM
+mrzcpd=mrzcpd
+Sapp=Sapp
+Oam=Oam
+
+#NTC document 
+maskey2.0=maskey2.0
+
+#NTC multimedia
+rssbMaskey=rssb_maskey
+fragIndexCluster=frag_index_cluster
+castleBlack=castle_black
+eastwatch=eastwatch
+platformvideo=platformvideo
+platformaudio=platformaudio
+platformimage=platformimage
+platformvoip=platformvoip
+
+# AV analysis
+#avanalyser=rssb_maskey
+#pic=imagePlatform
+#voip=voipPlatform
+#audio=audio_platform
+#video=video_platform
+#fragcheck=frag_index_cluster
+#blacklist=castle_black
+
+#NTC protocol
+dkLdp=dk_ldp
+dkZeusLogclct=dk_zeus_logclct
+dkSappClean=dk_sapp_clean
+dkZeusNtbapre=dk_zeus_ntbapre
+dkSappNtba=dk_sapp_ntba
+
+#NTC log
+zookeeper=zookeeper
+Kafka=Kafka
+Strom=Strom
+clickhouse=clickhouse
+Hades=Hades
+
+#NTC operations
+nmsweb=tomcat
+nmsdc=DataController
+nmsclient=nmsclient
+consul=consul
+telegraf=telegraf
+infludb=infludb
+Grafana=Grafana
+
+#AntiDDOS
+mrzcpd=mrzcpd
+Sapp=Sapp
+Torches=Torches
+
+#IP reuse
+irAccess=ir_access
+irFoward=sapp
+
+#IP discovery
+IPDiscovery=IP_discovery
+Redis=Redis
+
+#National agency
+Tfe=Tfe
+kni=kni
+Oam=Oam
+
+#Proxy cache
+Minio=Minio
+minioEventsPretreat=minio_events_pretreat
+minioDeteteClient=minio_detete_client
+
+#proxy cert
+certStore=cert_store
+redis=redis
+
+#other
+# C2 and C3
+pzffff=cc_cli
+#the following line is just for RESTART log check of C2
+pzffc2res=pzffc2res
+pzffhj=ccc_ser
+pzffkeep=pzff_keep
